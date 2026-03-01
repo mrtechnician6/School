@@ -88,3 +88,18 @@ function searchRecords() {
 
 // Initial Load
 displayRecords();
+// Function to Open/Close the Registration Panel
+function toggleForm() {
+    const panel = document.getElementById('form-panel');
+    const overlay = document.getElementById('form-overlay');
+    
+    // This adds/removes the "active" class which controls visibility
+    panel.classList.toggle('active');
+    overlay.classList.toggle('active');
+    
+    console.log("Panel toggled"); // This helps you check if the tap is working
+}
+
+// Ensure the button in HTML looks exactly like this:
+// <button class="fab" onclick="toggleForm()"> <i class="fa-solid fa-plus"></i> </button>
+
