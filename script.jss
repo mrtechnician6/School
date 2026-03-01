@@ -1,102 +1,96 @@
-const recordForm = document.getElementById('record-form');
+    const recordForm = document.getElementById('record-form');
 const nameInput = document.getElementById('name');
 const ageInput = document.getElementById('age');
 const emailInput = document.getElementById('email');
 const recordList = document.getElementById('record-list');
 const editIndexInput = document.getElementById('edit-index');
+const studentCount = document.getElementById('student-count');
 
-// Initialize records from local storage
 let records = JSON.parse(localStorage.getItem('records')) || [];
-console.log(records.length);
-// Function to check for duplicate names
-function isDuplicateName(email) {
-  return records.some(
-    (record) =&gt; record.email.toLowerCase() === email.toLowerCase()
-  );
-}
 
-// Display records
-function displayRecords() {
-  recordList.innerHTML = '';
-  console.log(records.length);
-  if (records.length === 0) {
-    const row = document.createElement('tr');
-    row.innerHTML = `<td colspan="5" style="text-align:center;color:red">No Record Found</td>`;
-    recordList.appendChild(row);
-  } else {
-    records.forEach((record, index) =&gt; {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-                    <td>${record.name}</td>
-                    <td>${record.age}</td>
-                    <td>${record.email}</td>
-                    <td><button>Edit</button></td>
-                    <td class="deleteButton"><button>Delete</button></td>
-                `;
-      recordList.appendChild(row);
+// Function to Render Records
+function displayRecords(data = records) {
+    recordList.innerHTML = '';
+    studentCount.innerText = records.length;
+
+    if (data.length === 0) {
+        recordList.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 40px; color: #94a3b8;">No records found.</td></tr>`;
+        return;
+    }
+
+    data.forEach((record, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>#${index + 1}</td>
+            <td style="font-weight:600">${record.name}</td>
+            <td>${record.age}</td>
+            <td>${record.email}</td>
+            <td style="text-align: center;">
+                <i class="fa-solid fa-pen-to-square btn-edit" onclick="editRecord(${index})"></i>
+                <i class="fa-solid fa-trash btn-delete" onclick="deleteRecord(${index})"></i>
+            </td>
+        `;
+        recordList.appendChild(row);
     });
-  }
 }
 
-// Add or Update a record
-recordForm.addEventListener('submit', function (e) {
-  e.preventDefault();
-  const name = nameInput.value;
-  const age = ageInput.value;
-  const email = emailInput.value;
-  const editIndex = parseInt(editIndexInput.value);
+// Add or Update Logic
+recordForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = nameInput.value;
+    const age = ageInput.value;
+    const email = emailInput.value;
+    const editIndex = parseInt(editIndexInput.value);
 
-  if (name &amp;&amp; age &amp;&amp; email) {
-    if (isDuplicateName(email) &amp;&amp; editIndex === -1) {
-      alert('Student already exists.');
-      return;
+    // Duplicate Check (Exclude current record if editing)
+    const isDuplicate = records.some((r, i) => r.email === email && i !== editIndex);
+    if (isDuplicate) {
+        alert("This email is already registered!");
+        return;
     }
 
     if (editIndex === -1) {
-      // Add a new record
-      records.push({ name, age, email });
+        records.push({ name, age, email });
     } else {
-      // Update an existing record
-      records[editIndex] = { name, age, email };
-      editIndexInput.value = -1;
+        records[editIndex] = { name, age, email };
+        editIndexInput.value = -1;
+        document.getElementById('submit-btn').innerHTML = `<i class="fa-solid fa-user-plus"></i> Register Student`;
     }
 
-    localStorage.setItem('records', JSON.stringify(records));
-    nameInput.value = '';
-    ageInput.value = '';
-    emailInput.value = '';
-    displayRecords();
-  }
+    saveAndRefresh();
+    recordForm.reset();
 });
 
-// Edit a record
+// Search Functionality
+function searchRecords() {
+    const searchTerm = document.getElementById('search-input').value.toLowerCase();
+    const filtered = records.filter(r => 
+        r.name.toLowerCase().includes(searchTerm) || 
+        r.email.toLowerCase().includes(searchTerm)
+    );
+    displayRecords(filtered);
+}
+
 function editRecord(index) {
-  const recordToEdit = records[index];
-  nameInput.value = recordToEdit.name;
-  ageInput.value = recordToEdit.age;
-  emailInput.value = recordToEdit.email;
-  editIndexInput.value = index;
+    const r = records[index];
+    nameInput.value = r.name;
+    ageInput.value = r.age;
+    emailInput.value = r.email;
+    editIndexInput.value = index;
+    document.getElementById('submit-btn').innerHTML = `<i class="fa-solid fa-check"></i> Update Record`;
 }
 
-// Delete a record
 function deleteRecord(index) {
-  displayRecords();
-  let delBtn = document.querySelectorAll('.deleteButton');
-  console.log(delBtn);
-  delBtn[
-    index
-  ].innerHTML = `<i id="yesBtn" class="fa-solid fa-check"></i><i id="noBtn" class="fa-solid fa-xmark"></i>`;
+    if(confirm("Are you sure you want to remove this student?")) {
+        records.splice(index, 1);
+        saveAndRefresh();
+    }
 }
 
-function confirmDelete(index) {
-  records.splice(index, 1);
-  localStorage.setItem('records', JSON.stringify(records));
-  displayRecords();
+function saveAndRefresh() {
+    localStorage.setItem('records', JSON.stringify(records));
+    displayRecords();
 }
 
-function resetDelete(index) {
-  displayRecords();
-}
-
-// Initial display
+// Initial Load
 displayRecords();
