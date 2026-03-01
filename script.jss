@@ -1,105 +1,87 @@
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwteftRrWcI6wWHPaEXXNM_ZKcc3cuE1GnPyWWDkXL-6xmB636mMyDlCIHcjkM7uc1jdg/exec"; // PASTE YOUR URL HERE
-let records = JSON.parse(localStorage.getItem('nk_records')) || [];
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwteftRrWcI6wWHPaEXXNM_ZKcc3cuE1GnPyWWDkXL-6xmB636mMyDlCIHcjkM7uc1jdg/exec";
+let records = JSON.parse(localStorage.getItem('shree_kinder_data')) || [];
 
-function toggleForm() {
-    document.getElementById('form-panel').classList.toggle('active');
-    document.getElementById('form-overlay').classList.toggle('active');
-}
+document.addEventListener('DOMContentLoaded', () => {
+    const overlay = document.getElementById('form-overlay');
+    const openBtn = document.getElementById('open-form-btn');
+    const closeBtn = document.getElementById('close-form-btn');
+    const form = document.getElementById('record-form');
 
-function displayRecords(data = records) {
-    const list = document.getElementById('record-list');
+    // 1. Toggle Form Logic
+    openBtn.addEventListener('click', () => overlay.classList.add('active'));
+    closeBtn.addEventListener('click', () => overlay.classList.remove('active'));
+    
+    // Close on overlay click
+    overlay.addEventListener('click', (e) => {
+        if(e.target === overlay) overlay.classList.remove('active');
+    });
+
+    // 2. Form Submission logic
+    form.onsubmit = async (e) => {
+        e.preventDefault();
+        const submitBtn = document.querySelector('.submit-btn');
+        submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Securing Data...';
+        submitBtn.disabled = true;
+
+        const student = {
+            name: document.getElementById('name').value,
+            age: document.getElementById('age').value,
+            grade: document.getElementById('grade').value,
+            gName: document.getElementById('g-name').value,
+            gPhone: document.getElementById('g-phone').value,
+            email: document.getElementById('email').value,
+            address: document.getElementById('address').value
+        };
+
+        try {
+            // Push to Google Sheets Lifetime Database
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify(student)
+            });
+
+            // Update Local View
+            records.unshift(student);
+            localStorage.setItem('shree_kinder_data', JSON.stringify(records));
+            
+            alert("✅ Registered Successfully at Shree Kinder Garden Academy!");
+            
+            renderCards();
+            form.reset();
+            overlay.classList.remove('active');
+        } catch (err) {
+            alert("Connection Error. Please try again.");
+        } finally {
+            submitBtn.innerHTML = "Complete Registration";
+            submitBtn.disabled = false;
+        }
+    };
+
+    renderCards();
+});
+
+function renderCards(data = records) {
+    const grid = document.getElementById('record-grid');
     document.getElementById('student-count').innerText = records.length;
-    list.innerHTML = '';
+    grid.innerHTML = '';
 
-    if(data.length === 0) {
-        list.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 40px; color:#94a3b8">No Students Found.</td></tr>`;
-        return;
-    }
-
-    data.forEach((r, i) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>
-                <div class="student-name">${r.name}</div>
-                <div class="student-sub">${r.email}</div>
-            </td>
-            <td><span class="badge">${r.grade}</span></td>
-            <td>
-                <div class="student-name">${r.gName}</div>
-                <div class="student-sub">${r.gPhone}</div>
-            </td>
-            <td style="text-align:right">
-                <i class="fa-solid fa-pen" onclick="editRecord(${i})" style="color:blue; cursor:pointer; margin-right:15px"></i>
-                <i class="fa-solid fa-trash" onclick="deleteRecord(${i})" style="color:red; cursor:pointer"></i>
-            </td>
+    data.forEach(r => {
+        const card = document.createElement('div');
+        card.className = 'student-card';
+        card.innerHTML = `
+            <div class="card-name">${r.name}</div>
+            <div class="card-info"><i class="fa-solid fa-user-shield"></i> ${r.gName}</div>
+            <div class="card-info"><i class="fa-solid fa-phone"></i> ${r.gPhone}</div>
+            <div class="card-info"><i class="fa-solid fa-location-dot"></i> ${r.address}</div>
+            <div class="card-tag">Grade: ${r.grade}</div>
         `;
-        list.appendChild(tr);
+        grid.appendChild(card);
     });
 }
 
-document.getElementById('record-form').onsubmit = async (e) => {
-    e.preventDefault();
-    const submitBtn = document.getElementById('submit-btn');
-    submitBtn.innerText = "Processing...";
-    submitBtn.disabled = true;
-
-    const studentData = {
-        name: document.getElementById('name').value,
-        age: document.getElementById('age').value,
-        grade: document.getElementById('grade').value,
-        address: document.getElementById('address').value,
-        gName: document.getElementById('g-name').value,
-        gPhone: document.getElementById('g-phone').value,
-        email: document.getElementById('email').value
-    };
-
-    const idx = parseInt(document.getElementById('edit-index').value);
-
-    // Save to Google Sheets
-    try {
-        await fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: JSON.stringify(studentData)
-        });
-
-        if(idx === -1) records.push(studentData);
-        else records[idx] = studentData;
-
-        localStorage.setItem('nk_records', JSON.stringify(records));
-        alert("✅ Registered Successfully!");
-        
-        displayRecords();
-        toggleForm();
-        document.getElementById('record-form').reset();
-    } catch (err) {
-        alert("Check Internet Connection!");
-    } finally {
-        submitBtn.innerText = "Register Student";
-        submitBtn.disabled = false;
-    }
-};
-
 function searchRecords() {
     const term = document.getElementById('search-input').value.toLowerCase();
-    const filtered = records.filter(r => r.name.toLowerCase().includes(term) || r.email.toLowerCase().includes(term));
-    displayRecords(filtered);
+    const filtered = records.filter(r => r.name.toLowerCase().includes(term) || r.grade.toLowerCase().includes(term));
+    renderCards(filtered);
 }
-
-// Initial Load
-displayRecords();
-// Function to Open/Close the Registration Panel
-function toggleForm() {
-    const panel = document.getElementById('form-panel');
-    const overlay = document.getElementById('form-overlay');
-    
-    // This adds/removes the "active" class which controls visibility
-    panel.classList.toggle('active');
-    overlay.classList.toggle('active');
-    
-    console.log("Panel toggled"); // This helps you check if the tap is working
-}
-
-// Ensure the button in HTML looks exactly like this:
-// <button class="fab" onclick="toggleForm()"> <i class="fa-solid fa-plus"></i> </button>
-
