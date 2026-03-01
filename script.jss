@@ -1,11 +1,46 @@
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwteftRrWcI6wWHPaEXXNM_ZKcc3cuE1GnPyWWDkXL-6xmB636mMyDlCIHcjkM7uc1jdg/exec"; // 
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwteftRrWcI6wWHPaEXXNM_ZKcc3cuE1GnPyWWDkXL-6xmB636mMyDlCIHcjkM7uc1jdg/exec"; // PASTE YOUR URL HERE
+let records = JSON.parse(localStorage.getItem('nk_records')) || [];
 
-recordForm.addEventListener('submit', (e) => {
+function toggleForm() {
+    document.getElementById('form-panel').classList.toggle('active');
+    document.getElementById('form-overlay').classList.toggle('active');
+}
+
+function displayRecords(data = records) {
+    const list = document.getElementById('record-list');
+    document.getElementById('student-count').innerText = records.length;
+    list.innerHTML = '';
+
+    if(data.length === 0) {
+        list.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 40px; color:#94a3b8">No Students Found.</td></tr>`;
+        return;
+    }
+
+    data.forEach((r, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>
+                <div class="student-name">${r.name}</div>
+                <div class="student-sub">${r.email}</div>
+            </td>
+            <td><span class="badge">${r.grade}</span></td>
+            <td>
+                <div class="student-name">${r.gName}</div>
+                <div class="student-sub">${r.gPhone}</div>
+            </td>
+            <td style="text-align:right">
+                <i class="fa-solid fa-pen" onclick="editRecord(${i})" style="color:blue; cursor:pointer; margin-right:15px"></i>
+                <i class="fa-solid fa-trash" onclick="deleteRecord(${i})" style="color:red; cursor:pointer"></i>
+            </td>
+        `;
+        list.appendChild(tr);
+    });
+}
+
+document.getElementById('record-form').onsubmit = async (e) => {
     e.preventDefault();
-    
-    // Show a "Processing..." state on the button
     const submitBtn = document.getElementById('submit-btn');
-    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registering...';
+    submitBtn.innerText = "Processing...";
     submitBtn.disabled = true;
 
     const studentData = {
@@ -18,30 +53,38 @@ recordForm.addEventListener('submit', (e) => {
         email: document.getElementById('email').value
     };
 
-    // Send data to Google Sheets
-    fetch(SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors', // Needed for Apps Script
-        body: JSON.stringify(studentData)
-    })
-    .then(() => {
-        // SUCCESS ACTIONS
-        alert("✅ Registered Successfully! Data saved to Master Database.");
-        
-        // Save locally as a backup
-        records.push(studentData);
-        localStorage.setItem('student_records', JSON.stringify(records));
+    const idx = parseInt(document.getElementById('edit-index').value);
+
+    // Save to Google Sheets
+    try {
+        await fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify(studentData)
+        });
+
+        if(idx === -1) records.push(studentData);
+        else records[idx] = studentData;
+
+        localStorage.setItem('nk_records', JSON.stringify(records));
+        alert("✅ Registered Successfully!");
         
         displayRecords();
-        recordForm.reset();
-        
-        // Reset button
-        submitBtn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Register Student';
+        toggleForm();
+        document.getElementById('record-form').reset();
+    } catch (err) {
+        alert("Check Internet Connection!");
+    } finally {
+        submitBtn.innerText = "Register Student";
         submitBtn.disabled = false;
-        if(window.innerWidth < 900) sidebar.classList.remove('active');
-    })
-    .catch(error => {
-        alert("Error saving data. Please check your internet connection.");
-        submitBtn.disabled = false;
-    });
-});
+    }
+};
+
+function searchRecords() {
+    const term = document.getElementById('search-input').value.toLowerCase();
+    const filtered = records.filter(r => r.name.toLowerCase().includes(term) || r.email.toLowerCase().includes(term));
+    displayRecords(filtered);
+}
+
+// Initial Load
+displayRecords();
