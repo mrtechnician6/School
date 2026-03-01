@@ -78,4 +78,45 @@ td { padding: 15px; border-top: 1px solid #f1f5f9; }
     .search-wrapper { width: 100%; margin-top: 10px; }
     .main-header { flex-direction: column; align-items: flex-start; }
     }
-             
+            /* Ensure the Panel starts OFF-SCREEN to the right */
+.form-panel {
+    position: fixed;
+    top: 0;
+    right: -100%; /* Hidden off-screen */
+    width: 400px;
+    height: 100%;
+    background: #ffffff;
+    z-index: 999; /* Make it higher than everything else */
+    transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 20px;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+}
+
+/* When the "active" class is added by JS, slide it to 0 */
+.form-panel.active {
+    right: 0;
+}
+
+/* The dark background behind the form */
+.form-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: none; /* Hidden by default */
+    z-index: 998;
+}
+
+.form-overlay.active {
+    display: block; /* Show when active */
+}
+
+/* Mobile full-screen fix */
+@media (max-width: 600px) {
+    .form-panel {
+        width: 100%; /* Takes full screen on phone */
+    }
+}
+
