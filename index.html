@@ -1,31 +1,68 @@
-<title>Document</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NK Digital | Student Management System</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
 
+<div class="app-container">
+    <aside class="sidebar">
+        <div class="logo">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <span>NK Digital</span>
+        </div>
+        <h2>Student Registration</h2>
+        <form id="record-form">
+            <input type="hidden" id="edit-index" value="-1">
+            <div class="input-group">
+                <label>Full Name</label>
+                <input type="text" id="name" placeholder="e.g. Nir Kunwar" required>
+            </div>
+            <div class="input-group">
+                <label>Age</label>
+                <input type="number" id="age" placeholder="e.g. 20" required>
+            </div>
+            <div class="input-group">
+                <label>Email Address</label>
+                <input type="email" id="email" placeholder="email@example.com" required>
+            </div>
+            <button type="submit" id="submit-btn"><i class="fa-solid fa-user-plus"></i> Register Student</button>
+        </form>
+    </aside>
 
+    <main class="main-content">
+        <header class="top-bar">
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="search-input" placeholder="Search by name or email..." onkeyup="searchRecords()">
+            </div>
+            <div class="stats">
+                Total Students: <span id="student-count">0</span>
+            </div>
+        </header>
 
-  <div class="container">
-    <div class="left">
-        <h1>Student Registration</h1>
-
-
-
-
-            <button type="submit">Add Record</button>
-
-
-    </div>
-    <div class="right">
-        <h2>Records</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Age</th>
-                    <th>Email</th>
-                    <th>Edit</th>
-                    <th>Delete</th>
-                </tr>
-            </thead>
-            <tbody id="record-list"></tbody>
-        </table>
-    </div>
+        <section class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Age</th>
+                        <th>Email</th>
+                        <th style="text-align: center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="record-list">
+                    </tbody>
+            </table>
+        </section>
+    </main>
 </div>
+
+<script src="script.js"></script>
+</body>
+</html>
