@@ -1,122 +1,83 @@
 :root {
-    --primary: #2563eb;
-    --dark: #1e293b;
-    --bg: #f8fafc;
+    --brand: #6366f1;
+    --accent: #f59e0b;
+    --dark: #0f172a;
+    --light-bg: #f8fafc;
     --white: #ffffff;
-    --shadow: 0 4px 15px rgba(0,0,0,0.08);
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
 
-body { background: var(--bg); color: var(--dark); line-height: 1.6; }
+body { background: var(--light-bg); color: var(--dark); padding-bottom: 100px; }
 
-/* Header */
-.main-header {
-    background: var(--dark); color: white;
-    padding: 1rem 1.5rem; display: flex; 
-    justify-content: space-between; align-items: center;
-    position: sticky; top: 0; z-index: 100;
+/* Header Design */
+.school-header {
+    background: linear-gradient(135deg, var(--dark) 0%, #1e293b 100%);
+    color: white; padding: 30px 20px; text-align: center;
+    border-bottom-left-radius: 30px; border-bottom-right-radius: 30px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
-.brand { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; font-weight: 700; color: #fb923c; }
-.search-wrapper { position: relative; width: 50%; }
-.search-wrapper i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
-.search-wrapper input { 
-    width: 100%; padding: 8px 12px 8px 35px; border-radius: 8px; 
-    border: none; outline: none; background: #334155; color: white;
+.school-name { font-size: 1.6rem; letter-spacing: -0.5px; margin-bottom: 5px; color: var(--accent); }
+.system-title { opacity: 0.8; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+
+/* Search Bar */
+.search-bar {
+    margin-top: 20px; position: relative; max-width: 500px; margin-left: auto; margin-right: auto;
+}
+.search-bar i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+.search-bar input {
+    width: 100%; padding: 12px 15px 12px 45px; border-radius: 50px; border: none;
+    background: rgba(255,255,255,0.1); color: white; outline: none; border: 1px solid rgba(255,255,255,0.2);
 }
 
-/* Dashboard Layout */
-.dashboard { padding: 1.5rem; max-width: 1200px; margin: 0 auto; }
-.stat-card { 
-    background: var(--white); padding: 1.5rem; border-radius: 12px;
-    box-shadow: var(--shadow); width: fit-content; margin-bottom: 1.5rem;
-}
-.stat-label { display: block; color: #64748b; font-size: 0.9rem; }
-.stat-value { font-size: 2rem; font-weight: 800; color: var(--primary); }
+/* Stats & Grid */
+.container { padding: 20px; max-width: 1000px; margin: 0 auto; }
+.stats-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.stat-box { background: white; padding: 15px 25px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+.stat-box .label { font-size: 0.8rem; color: #64748b; display: block; }
+.stat-box .value { font-size: 1.8rem; font-weight: 800; color: var(--brand); }
 
-/* Modern Table */
-.table-card { background: var(--white); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; }
-.table-responsive { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; min-width: 700px; }
-th { background: #f1f5f9; padding: 15px; text-align: left; font-size: 0.8rem; text-transform: uppercase; color: #64748b; }
-td { padding: 15px; border-top: 1px solid #f1f5f9; }
-.student-name { font-weight: 600; color: var(--dark); }
-.student-sub { font-size: 0.8rem; color: #94a3b8; }
-
-/* Floating Action Button */
-.fab {
-    position: fixed; bottom: 25px; right: 25px;
-    width: 60px; height: 60px; border-radius: 50%;
-    background: var(--primary); color: white; border: none;
-    font-size: 1.5rem; cursor: pointer; box-shadow: 0 5px 20px rgba(37, 99, 235, 0.4);
-    z-index: 200; transition: 0.3s;
+/* Student Cards */
+.record-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; }
+.student-card {
+    background: white; border-radius: 20px; padding: 20px; position: relative;
+    border: 1px solid #e2e8f0; transition: 0.3s;
 }
-.fab:active { transform: scale(0.9); }
-
-/* Slide-over Form Panel */
-.form-panel {
-    position: fixed; top: 0; right: -100%; width: 400px; height: 100%;
-    background: var(--white); z-index: 300; padding: 2rem;
-    box-shadow: -5px 0 30px rgba(0,0,0,0.1); transition: 0.4s ease;
+.student-card:active { transform: scale(0.98); }
+.card-name { font-size: 1.1rem; font-weight: 700; margin-bottom: 5px; }
+.card-info { font-size: 0.85rem; color: #64748b; margin-bottom: 3px; }
+.card-tag { 
+    display: inline-block; padding: 4px 12px; border-radius: 50px; 
+    background: #e0e7ff; color: var(--brand); font-size: 0.75rem; font-weight: 600; margin-top: 10px;
 }
-.form-panel.active { right: 0; }
-.form-overlay {
+
+/* Floating Button */
+.fab-trigger {
+    position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px;
+    background: var(--brand); color: white; border: none; border-radius: 50%;
+    font-size: 1.8rem; box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+    z-index: 100; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+
+/* Registration Panel Animation */
+.glass-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.5); display: none; z-index: 250;
+    background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(8px);
+    display: none; align-items: flex-end; z-index: 1000;
 }
-.form-overlay.active { display: block; }
-
-.panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-.input-field { margin-bottom: 1rem; }
-.input-field label { display: block; font-size: 0.85rem; margin-bottom: 5px; font-weight: 600; }
-.input-field input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; }
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.submit-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
-
-@media (max-width: 600px) {
-    .form-panel { width: 100%; }
-    .search-wrapper { width: 100%; margin-top: 10px; }
-    .main-header { flex-direction: column; align-items: flex-start; }
-    }
-            /* Ensure the Panel starts OFF-SCREEN to the right */
-.form-panel {
-    position: fixed;
-    top: 0;
-    right: -100%; /* Hidden off-screen */
-    width: 400px;
-    height: 100%;
-    background: #ffffff;
-    z-index: 999; /* Make it higher than everything else */
-    transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    padding: 20px;
-    box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+.registration-panel {
+    background: white; width: 100%; border-top-left-radius: 30px; border-top-right-radius: 30px;
+    padding: 30px; transform: translateY(100%); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+.glass-overlay.active { display: flex; }
+.glass-overlay.active .registration-panel { transform: translateY(0); }
 
-/* When the "active" class is added by JS, slide it to 0 */
-.form-panel.active {
-    right: 0;
-}
-
-/* The dark background behind the form */
-.form-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    display: none; /* Hidden by default */
-    z-index: 998;
-}
-
-.form-overlay.active {
-    display: block; /* Show when active */
-}
-
-/* Mobile full-screen fix */
-@media (max-width: 600px) {
-    .form-panel {
-        width: 100%; /* Takes full screen on phone */
-    }
-}
-
+/* Form Elements */
+.input-group { margin-bottom: 15px; }
+.input-group label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px; }
+.input-group input { width: 100%; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 12px; outline: none; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.submit-btn {
+    width: 100%; padding: 16px; background: var(--brand); color: white; border: none;
+    border-radius: 15px; font-weight: 700; font-size: 1rem; margin-top: 10px;
+              }
