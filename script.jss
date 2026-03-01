@@ -1,15 +1,25 @@
- // DOM Elements
+// 1. UNIQUE KEY - Use a specific key for NK Digital to avoid conflicts
+const STORAGE_KEY = 'NK_Digital_Student_Database_v1';
+
+// 2. INITIAL LOAD - Get data immediately
+let records = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
 const recordForm = document.getElementById('record-form');
 const recordList = document.getElementById('record-list');
 const studentCountDisplay = document.getElementById('student-count');
 const sidebar = document.getElementById('sidebar');
 
-// Mobile Menu Listeners
-document.getElementById('menu-open').addEventListener('click', () => sidebar.classList.add('active'));
-document.getElementById('menu-close').addEventListener('click', () => sidebar.classList.remove('active'));
+// Function to save to "Lifetime" LocalStorage
+function saveToLocalStorage() {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+        console.log("Data synchronized to local storage successfully.");
+    } catch (error) {
+        alert("Storage is full or disabled. Data might not be saved.");
+    }
+}
 
-let records = JSON.parse(localStorage.getItem('student_records')) || [];
-
+// Function to Render Records
 function displayRecords(data = records) {
     recordList.innerHTML = '';
     studentCountDisplay.innerText = records.length;
@@ -17,7 +27,7 @@ function displayRecords(data = records) {
     if (data.length === 0) {
         recordList.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 50px; color: #94a3b8;">
             <i class="fa-solid fa-folder-open" style="font-size: 2rem; display:block; margin-bottom:10px;"></i>
-            No students matching your criteria.
+            No records found.
         </td></tr>`;
         return;
     }
@@ -34,7 +44,7 @@ function displayRecords(data = records) {
             <td><span style="background:#f1f5f9; padding:4px 8px; border-radius:4px;">${record.grade}</span></td>
             <td>${record.gName}</td>
             <td>${record.gPhone}</td>
-            <td class="actions">
+            <td class="actions" style="text-align:right">
                 <i class="fa-solid fa-pen btn-icon edit" onclick="editRecord(${index})"></i>
                 <i class="fa-solid fa-trash btn-icon delete" onclick="deleteRecord(${index})"></i>
             </td>
@@ -43,9 +53,12 @@ function displayRecords(data = records) {
     });
 }
 
+// Add or Update Logic
 recordForm.addEventListener('submit', (e) => {
-    e.preventDefault();
+    e.preventDefault(); // STOPS THE PAGE FROM REFRESHING (Crucial for saving)
     
+    const editIndex = parseInt(document.getElementById('edit-index').value);
+
     const studentData = {
         name: document.getElementById('name').value,
         age: document.getElementById('age').value,
@@ -56,36 +69,34 @@ recordForm.addEventListener('submit', (e) => {
         email: document.getElementById('email').value
     };
 
-    const editIndex = parseInt(document.getElementById('edit-index').value);
-
-    // Duplicate Check
-    const exists = records.some((r, i) => r.email === studentData.email && i !== editIndex);
-    if (exists) return alert("Email already exists in system!");
-
     if (editIndex === -1) {
+        // Create new
         records.push(studentData);
     } else {
+        // Update existing
         records[editIndex] = studentData;
         document.getElementById('edit-index').value = -1;
         document.getElementById('submit-btn').innerHTML = `<i class="fa-solid fa-user-plus"></i> Register Student`;
     }
 
-    localStorage.setItem('student_records', JSON.stringify(records));
-    recordForm.reset();
-    displayRecords();
+    // MANDATORY STEPS FOR SAVING
+    saveToLocalStorage(); // Write to browser memory
+    displayRecords();     // Update UI
+    recordForm.reset();   // Clear form
+    
     if(window.innerWidth < 900) sidebar.classList.remove('active');
 });
 
-function searchRecords() {
-    const term = document.getElementById('search-input').value.toLowerCase();
-    const filtered = records.filter(r => 
-        r.name.toLowerCase().includes(term) || 
-        r.email.toLowerCase().includes(term) ||
-        r.grade.toLowerCase().includes(term)
-    );
-    displayRecords(filtered);
+// Delete Logic
+function deleteRecord(index) {
+    if(confirm("Are you sure? This cannot be undone.")) {
+        records.splice(index, 1);
+        saveToLocalStorage(); // Update memory after delete
+        displayRecords();     // Update UI
+    }
 }
 
+// Edit Logic
 function editRecord(index) {
     const r = records[index];
     document.getElementById('name').value = r.name;
@@ -101,13 +112,5 @@ function editRecord(index) {
     if(window.innerWidth < 900) sidebar.classList.add('active');
 }
 
-function deleteRecord(index) {
-    if(confirm("Permanently delete this student record?")) {
-        records.splice(index, 1);
-        localStorage.setItem('student_records', JSON.stringify(records));
-        displayRecords();
-    }
-}
-
-// Start
+// Initial display on page load
 displayRecords();
