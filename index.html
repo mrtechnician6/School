@@ -2,96 +2,98 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NK Digital | Pro Student Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NK Digital | Pro SMS</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-<div class="app-shell">
-    <header class="mobile-nav">
-        <div class="logo">NK Digital</div>
-        <i class="fa-solid fa-bars-staggered" id="menu-open"></i>
+    <header class="main-header">
+        <div class="brand">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <span>NK Digital</span>
+        </div>
+        <div class="search-wrapper">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="search-input" placeholder="Search students..." onkeyup="searchRecords()">
+        </div>
     </header>
 
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="logo"><i class="fa-solid fa-graduation-cap"></i> NK Digital</div>
-            <i class="fa-solid fa-xmark" id="menu-close"></i>
+    <main class="dashboard">
+        <div class="stats-container">
+            <div class="stat-card">
+                <span class="stat-label">Total Students</span>
+                <span class="stat-value" id="student-count">0</span>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student Details</th>
+                            <th>Grade</th>
+                            <th>Guardian Info</th>
+                            <th style="text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="record-list">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <button class="fab" onclick="toggleForm()">
+        <i class="fa-solid fa-plus"></i>
+    </button>
+
+    <div class="form-overlay" id="form-overlay" onclick="toggleForm()"></div>
+    <aside class="form-panel" id="form-panel">
+        <div class="panel-header">
+            <h3>New Registration</h3>
+            <i class="fa-solid fa-xmark" onclick="toggleForm()"></i>
         </div>
         
         <form id="record-form">
-            <h2>Student Registration</h2>
             <input type="hidden" id="edit-index" value="-1">
-            
-            <div class="form-grid">
-                <div class="input-group full">
-                    <label>Full Name</label>
-                    <input type="text" id="name" placeholder="Nir Kunwar" required>
-                </div>
-                <div class="input-group">
+            <div class="input-field">
+                <label>Full Name</label>
+                <input type="text" id="name" placeholder="Enter name" required>
+            </div>
+            <div class="grid-2">
+                <div class="input-field">
                     <label>Age</label>
                     <input type="number" id="age" required>
                 </div>
-                <div class="input-group">
-                    <label>Grade/Class</label>
-                    <input type="text" id="grade" placeholder="10th" required>
-                </div>
-                <div class="input-group full">
-                    <label>Address</label>
-                    <input type="text" id="address" placeholder="Kathmandu, Nepal" required>
-                </div>
-                <div class="input-group">
-                    <label>Guardian Name</label>
-                    <input type="text" id="g-name" required>
-                </div>
-                <div class="input-group">
-                    <label>Guardian Contact</label>
-                    <input type="tel" id="g-phone" required>
-                </div>
-                <div class="input-group full">
-                    <label>Email Address</label>
-                    <input type="email" id="email" placeholder="student@example.com" required>
+                <div class="input-field">
+                    <label>Grade</label>
+                    <input type="text" id="grade" placeholder="e.g. 10" required>
                 </div>
             </div>
-
-            <button type="submit" id="submit-btn" class="main-btn">
-                <i class="fa-solid fa-user-plus"></i> Register Student
-            </button>
+            <div class="input-field">
+                <label>Address</label>
+                <input type="text" id="address" placeholder="Location" required>
+            </div>
+            <div class="input-field">
+                <label>Guardian Name</label>
+                <input type="text" id="g-name" required>
+            </div>
+            <div class="input-field">
+                <label>Guardian Phone</label>
+                <input type="tel" id="g-phone" required>
+            </div>
+            <div class="input-field">
+                <label>Email Address</label>
+                <input type="email" id="email" placeholder="email@school.com" required>
+            </div>
+            <button type="submit" id="submit-btn" class="submit-btn">Register Student</button>
         </form>
     </aside>
 
-    <main class="main-content">
-        <div class="dashboard-header">
-            <div class="search-area">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="search-input" placeholder="Search by name, grade, or email..." onkeyup="searchRecords()">
-            </div>
-            <div class="counter-card">
-                <span class="label">Total Students</span>
-                <span class="count" id="student-count">0</span>
-            </div>
-        </div>
-
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Student Info</th>
-                        <th>Grade</th>
-                        <th>Guardian</th>
-                        <th>Contact</th>
-                        <th style="text-align:right">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="record-list"></tbody>
-            </table>
-        </div>
-    </main>
-</div>
-
-<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
     </html>
     
