@@ -1,26 +1,33 @@
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwteftRrWcI6wWHPaEXXNM_ZKcc3cuE1GnPyWWDkXL-6xmB636mMyDlCIHcjkM7uc1jdg/exec";
 let records = JSON.parse(localStorage.getItem('shree_kinder_data')) || [];
 
+// Wait for the page to be fully ready
 document.addEventListener('DOMContentLoaded', () => {
     const overlay = document.getElementById('form-overlay');
     const openBtn = document.getElementById('open-form-btn');
     const closeBtn = document.getElementById('close-form-btn');
     const form = document.getElementById('record-form');
 
-    // 1. Toggle Form Logic
-    openBtn.addEventListener('click', () => overlay.classList.add('active'));
-    closeBtn.addEventListener('click', () => overlay.classList.remove('active'));
-    
-    // Close on overlay click
-    overlay.addEventListener('click', (e) => {
-        if(e.target === overlay) overlay.classList.remove('active');
-    });
+    // --- BUTTON TRIGGER LOGIC ---
+    if (openBtn) {
+        openBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            overlay.classList.add('active');
+            console.log("Registration Panel Opened");
+        });
+    }
 
-    // 2. Form Submission logic
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            overlay.classList.remove('active');
+        });
+    }
+
+    // --- DATA SUBMISSION LOGIC ---
     form.onsubmit = async (e) => {
         e.preventDefault();
         const submitBtn = document.querySelector('.submit-btn');
-        submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Securing Data...';
+        submitBtn.innerHTML = '<i class="fa-solid fa-sync fa-spin"></i> Saving to Cloud...';
         submitBtn.disabled = true;
 
         const student = {
@@ -34,14 +41,12 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            // Push to Google Sheets Lifetime Database
             await fetch(SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 body: JSON.stringify(student)
             });
 
-            // Update Local View
             records.unshift(student);
             localStorage.setItem('shree_kinder_data', JSON.stringify(records));
             
@@ -51,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
             form.reset();
             overlay.classList.remove('active');
         } catch (err) {
-            alert("Connection Error. Please try again.");
+            alert("Error: Check your internet connection.");
         } finally {
             submitBtn.innerHTML = "Complete Registration";
             submitBtn.disabled = false;
@@ -66,22 +71,20 @@ function renderCards(data = records) {
     document.getElementById('student-count').innerText = records.length;
     grid.innerHTML = '';
 
+    if (data.length === 0) {
+        grid.innerHTML = '<p style="text-align:center; width:100%; color:#94a3b8; margin-top:50px;">No students registered yet.</p>';
+        return;
+    }
+
     data.forEach(r => {
         const card = document.createElement('div');
         card.className = 'student-card';
         card.innerHTML = `
             <div class="card-name">${r.name}</div>
-            <div class="card-info"><i class="fa-solid fa-user-shield"></i> ${r.gName}</div>
+            <div class="card-info"><i class="fa-solid fa-user-graduate"></i> Grade: ${r.grade}</div>
             <div class="card-info"><i class="fa-solid fa-phone"></i> ${r.gPhone}</div>
-            <div class="card-info"><i class="fa-solid fa-location-dot"></i> ${r.address}</div>
-            <div class="card-tag">Grade: ${r.grade}</div>
+            <div class="card-tag">Guardian: ${r.gName}</div>
         `;
         grid.appendChild(card);
     });
-}
-
-function searchRecords() {
-    const term = document.getElementById('search-input').value.toLowerCase();
-    const filtered = records.filter(r => r.name.toLowerCase().includes(term) || r.grade.toLowerCase().includes(term));
-    renderCards(filtered);
 }
