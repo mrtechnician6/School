@@ -81,3 +81,27 @@ body { background: var(--light-bg); color: var(--dark); padding-bottom: 100px; }
     width: 100%; padding: 16px; background: var(--brand); color: white; border: none;
     border-radius: 15px; font-weight: 700; font-size: 1rem; margin-top: 10px;
               }
+.fab-trigger {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 65px;
+    height: 65px;
+    background: #6366f1;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.8rem;
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+    z-index: 9999 !important; /* Forces the button to the front */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent; /* Fixes mobile tapping lag */
+}
+
+.fab-trigger:active {
+    transform: scale(0.9);
+    }
+
