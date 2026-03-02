@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Shree Kinder Garden Academy | NK Digital</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root { --brand: #6366f1; --accent: #fb923c; --dark: #0f172a; --bg: #f8fafc; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background: var(--bg); color: var(--dark); padding-bottom: 100px; }
+
+        /* Header & Search UI */
+        .school-header {
+            background: linear-gradient(135deg, var(--dark) 0%, #1e293b 100%);
+            color: white; padding: 40px 20px 60px 20px; text-align: center;
+            border-bottom-left-radius: 40px; border-bottom-right-radius: 40px;
+            position: relative;
+        }
+        .school-name { font-size: 1.5rem; color: var(--accent); margin-bottom: 5px; font-weight: 800; }
+
+        .search-container {
+            max-width: 500px; margin: -30px auto 20px; padding: 0 20px;
+            position: relative; z-index: 10;
+        }
+        .search-box {
+            background: white; display: flex; align-items: center;
+            padding: 15px 20px; border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .search-box i { color: #94a3b8; margin-right: 15px; font-size: 1.1rem; }
+        .search-box input {
+            border: none; outline: none; width: 100%; font-size: 1rem; color: var(--dark);
+        }
+
+        /* Dashboard Content */
+        .container { padding: 0 20px; max-width: 600px; margin: 0 auto; }
+        .stats-box { 
+            background: white; padding: 20px; border-radius: 20px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; 
+            justify-content: space-between; align-items: center; margin-bottom: 25px;
+        }
+
+        .refresh-btn {
+            background: #eef2ff; color: var(--brand); border: none;
+            padding: 8px 12px; border-radius: 10px; font-weight: bold;
+            display: flex; align-items: center; gap: 5px; cursor: pointer;
+            transition: 0.3s; font-size: 0.75rem;
+        }
+        .refresh-btn:active { transform: rotate(15deg) scale(0.9); }
+        .spinning { animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        .student-card { 
+            background: white; padding: 20px; border-radius: 20px; 
+            border-left: 6px solid var(--brand); box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            margin-bottom: 15px; cursor: pointer; transition: 0.3s; overflow: hidden;
+        }
+        .student-card:active { transform: scale(0.98); }
+
+        .student-details {
+            max-height: 0; opacity: 0; transition: 0.4s ease;
+            margin-top: 0; padding-top: 0; border-top: 1px dashed #e2e8f0;
+        }
+        .student-card.expanded .student-details {
+            max-height: 500px; opacity: 1; margin-top: 15px; padding-top: 15px;
+        }
+        .detail-item { font-size: 0.9rem; color: #475569; margin-bottom: 8px; display: flex; gap: 10px; }
+        .detail-item i { color: var(--brand); width: 15px; margin-top: 3px; }
+
+        .fab-trigger {
+            position: fixed; bottom: 30px; right: 30px; width: 70px; height: 70px;
+            background: var(--brand); color: white; border: none; border-radius: 50%;
+            font-size: 2rem; z-index: 9999; box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        }
+
+        .form-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px);
+            display: none; align-items: flex-end; z-index: 10000;
+        }
+        .form-overlay.active { display: flex; }
+        .panel { background: white; width: 100%; padding: 30px; border-radius: 35px 35px 0 0; max-height: 90vh; overflow-y: auto; }
+        .btn-submit { width: 100%; padding: 16px; background: var(--brand); color: white; border: none; border-radius: 15px; font-weight: bold; font-size: 1rem; }
+    </style>
+</head>
+<body>
+
+    <header class="school-header">
+        <h1 class="school-name">Shree Kinder Garden Academy</h1>
+        <p style="opacity:0.8; font-size:0.8rem; letter-spacing: 1px;">STUDENT REGISTRATION SYSTEM</p>
+    </header>
+
+    <div class="search-container">
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="search-input" placeholder="Search by name or grade..." autocomplete="off">
+        </div>
+    </div>
+
+    <main class="container">
+        <div class="stats-box">
+            <div>
+                <p style="color:#64748b; font-size:0.7rem; font-weight:bold;">TOTAL STUDENTS</p>
+                <p id="student-count" style="font-size:1.8rem; font-weight:800; color:var(--brand);">...</p>
+            </div>
+            <button class="refresh-btn" onclick="syncWithCloud()" id="sync-btn">
+                <i class="fa-solid fa-arrows-rotate" id="sync-icon"></i> REFRESH
+            </button>
+        </div>
+        <div id="record-grid"></div>
+    </main>
+
+    <button class="fab-trigger" id="open-btn"><i class="fa-solid fa-plus"></i></button>
+
+    <div class="form-overlay" id="overlay">
+        <div class="panel">
+            <h2 style="margin-bottom:20px; font-weight:800;">New Student</h2>
+            <form id="reg-form">
+                <input type="text" id="name" placeholder="Full Name" required style="width: 100%; padding: 14px; margin-bottom: 12px; border: 1.5px solid #e2e8f0; border-radius: 12px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <input type="number" id="age" placeholder="Age" required style="width: 100%; padding: 14px; margin-bottom: 12px; border: 1.5px solid #e2e8f0; border-radius: 12px;">
+                    <input type="text" id="grade" placeholder="Grade" required style="width: 100%; padding: 14px; margin-bottom: 12px; border: 1.5px solid #e2e8f0; border-radius: 12px;">
+                </div>
+                <input type="text" id="gname" placeholder="Guardian Name" required style="width: 100%; padding: 14px; margin-bottom: 12px; border: 1.5px solid #e2e8f0; border-radius: 12px;">
+                <input type="tel" id="gphone" placeholder="Phone Number" required style="width: 100%; padding: 14px; margin-bottom: 12px; border: 1.5px solid #e2e8f0; border-radius: 12px;">
+                <input type="email" id="email" placeholder="Email Address" required style="width: 100%; padding: 14px; margin-bottom: 12px; border: 1.5px solid #e2e8f0; border-radius: 12px;">
+                <input type="text" id="addr" placeholder="Home Address" required style="width: 100%; padding: 14px; margin-bottom: 12px; border: 1.5px solid #e2e8f0; border-radius: 12px;">
+                <button type="submit" class="btn-submit" id="submit-btn">Complete Registration</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwteftRrWcI6wWHPaEXXNM_ZKcc3cuE1GnPyWWDkXL-6xmB636mMyDlCIHcjkM7uc1jdg/exec";
+        
+        // Initializing with local memory but forcing a cloud refresh immediately
+        let records = JSON.parse(localStorage.getItem('shree_v3_clean')) || [];
+
+        const searchInput = document.getElementById('search-input');
+        const overlay = document.getElementById('overlay');
+        const openBtn = document.getElementById('open-btn');
+        const form = document.getElementById('reg-form');
+        const countEl = document.getElementById('student-count');
+        const syncIcon = document.getElementById('sync-icon');
+
+        // --- 1. SEARCH ENGINE (Starts-With Logic) ---
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase().trim();
+            const filtered = records.filter(r => 
+                (r.name && r.name.toLowerCase().startsWith(term)) || 
+                (r.grade && r.grade.toString().toLowerCase().startsWith(term))
+            );
+            render(filtered, term);
+        });
+
+        // --- 2. THE OSCAR-WINNING CLOUD SYNC ---
+        // This solves the cross-platform issue by forcing a fetch from Google Sheets
+        async function syncWithCloud() {
+            syncIcon.classList.add('spinning');
+            countEl.innerText = "...";
+            
+            try {
+                const response = await fetch(SCRIPT_URL);
+                const cloudData = await response.json();
+                
+                if (cloudData && Array.isArray(cloudData)) {
+                    // Clean and Reverse so new entries are at the top
+                    records = cloudData.filter(item => item.name).reverse();
+                    localStorage.setItem('shree_v3_clean', JSON.stringify(records));
+                    render();
+                }
+            } catch (err) {
+                console.error("Sync Error:", err);
+                render(); // Show local data if offline
+            } finally {
+                syncIcon.classList.remove('spinning');
+            }
+        }
+
+        // --- 3. UI MODALS ---
+        const toggle = (e) => { if(e) e.preventDefault(); overlay.classList.toggle('active'); };
+        openBtn.onclick = toggle;
+        overlay.onclick = (e) => { if(e.target === overlay) toggle(); };
+
+        // --- 4. RENDER ENGINE ---
+        function render(dataToDisplay = records, searchTerm = "") {
+            const grid = document.getElementById('record-grid');
+            countEl.innerText = dataToDisplay.length;
+            grid.innerHTML = '';
+            
+            if (dataToDisplay.length === 0) {
+                grid.innerHTML = `
+                    <div style="text-align: center; padding: 50px 20px;">
+                        <i class="fa-solid fa-cloud-arrow-down" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 15px;"></i>
+                        <h3 style="color: #0f172a;">${searchTerm ? 'No matches found' : 'Refreshing Database...'}</h3>
+                    </div>`;
+                return;
+            }
+
+            dataToDisplay.forEach(r => {
+                const card = document.createElement('div');
+                card.className = 'student-card';
+                card.onclick = () => card.classList.toggle('expanded');
+                
+                // Handling different property names if they change in the sheet
+                const gName = r.gName || r.gname || 'Not Provided';
+                const gPhone = r.gPhone || r.gphone || 'Not Provided';
+                const addr = r.address || r.addr || 'Not Provided';
+
+                card.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <h3 style="color:#0f172a; margin-bottom:4px;">${r.name}</h3>
+                            <p style="font-size:0.8rem; color:#64748b;">Grade: ${r.grade} • <span style="color:var(--brand)">Details</span></p>
+                        </div>
+                        <i class="fa-solid fa-chevron-down" style="color:#cbd5e1; font-size:0.8rem;"></i>
+                    </div>
+                    <div class="student-details">
+                        <div class="detail-item"><i class="fa-solid fa-calendar-day"></i> <strong>Age:</strong> ${r.age}</div>
+                        <div class="detail-item"><i class="fa-solid fa-user-shield"></i> <strong>Guardian:</strong> ${gName}</div>
+                        <div class="detail-item"><i class="fa-solid fa-phone"></i> <strong>Contact:</strong> ${gPhone}</div>
+                        <div class="detail-item"><i class="fa-solid fa-map-location-dot"></i> <strong>Address:</strong> ${addr}</div>
+                        <div class="detail-item"><i class="fa-solid fa-envelope"></i> <strong>Email:</strong> ${r.email || 'N/A'}</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // --- 5. SUBMIT LOGIC ---
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            const oldText = btn.innerText;
+            btn.innerText = "Connecting to Cloud...";
+            btn.disabled = true;
+
+            const data = {
+                name: document.getElementById('name').value,
+                age: document.getElementById('age').value,
+                grade: document.getElementById('grade').value,
+                gName: document.getElementById('gname').value,
+                gPhone: document.getElementById('gphone').value,
+                email: document.getElementById('email').value,
+                address: document.getElementById('addr').value
+            };
+
+            try {
+                // Send to Google Script
+                await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
+                
+                form.reset();
+                toggle();
+                alert("✅ Student Registered Successfully!");
+                
+                // Crucial: Re-sync from the cloud so the new student appears everywhere!
+                await syncWithCloud();
+            } catch (err) { 
+                alert("Cloud Sync Error. Please Refresh."); 
+            } finally { 
+                btn.innerText = oldText; 
+                btn.disabled = false; 
+            }
+        };
+
+        // Initialize: Show local data first, then force fetch fresh data from the sheet
+        render();
+        syncWithCloud();
+    </script>
+</body>
+</html>
